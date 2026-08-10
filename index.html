@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="description" content="Catálogo digital Nightech para pedidos e cotações." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Nightech | Catálogo Digital</title>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">N</span><div><strong>NIGHTECH</strong><small>Catálogo Digital</small></div></div>
+    <div class="top-actions">
+      <button id="historyBtn" class="ghost hidden">Histórico</button>
+      <button id="adminBtn" class="ghost hidden">Admin</button>
+      <button id="authBtn" class="ghost">Entrar</button>
+      <button id="cartBtn" class="cart-btn">Pedido <span id="cartCount">0</span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div><span class="eyebrow">Tecnologia • Robótica • Importação</span><h1>Escolha, clique e monte seu pedido.</h1><p>Selecione os produtos, informe quantidades e gere seu pedido em PDF de forma simples.</p></div>
+      <div class="hero-card"><strong>+20 anos</strong><span>de experiência informada pela Nightech</span><small>Atendimento para todo o Brasil.</small></div>
+    </section>
+
+    <section class="toolbar">
+      <form id="searchForm" class="search-box" role="search">
+        <input id="searchInput" type="search" placeholder="Digite código, part number ou nome do produto..." aria-label="Buscar produtos" />
+        <button id="searchBtn" class="primary" type="submit">🔎 Buscar</button>
+        <button id="clearSearchBtn" class="ghost hidden" type="button">Limpar</button>
+      </form>
+      <select id="stockFilter" aria-label="Filtrar estoque"><option value="all">Todos</option><option value="available">Em estoque</option><option value="incoming">Com previsão</option></select>
+      <select id="sortSelect" aria-label="Ordenar produtos"><option value="code">Código</option><option value="priceAsc">Menor preço</option><option value="priceDesc">Maior preço</option><option value="name">Descrição</option></select>
+    </section>
+    <div id="searchStatus" class="search-status hidden"></div>
+
+    <section class="summary-strip">
+      <div><strong id="productCount">0</strong><span>produtos</span></div>
+      <div><strong id="selectedCount">0</strong><span>selecionados</span></div>
+      <div><strong id="subtotalTop">R$ 0,00</strong><span>subtotal</span></div>
+    </section>
+
+    <section id="catalog" class="catalog"></section>
+    <div class="load-more-wrap"><button id="loadMoreBtn" class="ghost load-more hidden">Carregar mais produtos</button></div>
+  </main>
+
+  <dialog id="authDialog">
+    <form method="dialog" class="modal-card" id="authForm">
+      <button class="close" value="cancel" aria-label="Fechar">×</button>
+      <h2 id="authTitle">Entrar</h2>
+      <p class="muted" id="authHint">Entre para finalizar pedidos e consultar seu histórico.</p>
+      <label>Nome<input id="nameField" autocomplete="name" /></label>
+      <label>E-mail<input id="emailField" type="email" autocomplete="email" required /></label>
+      <label>Telefone<input id="phoneField" autocomplete="tel" /></label>
+      <label>CPF/CNPJ<input id="docField" /></label>
+      <label>Senha<input id="passwordField" type="password" autocomplete="current-password" required /></label>
+      <div class="modal-actions"><button type="button" id="toggleAuth" class="ghost">Criar cadastro</button><button type="submit" class="primary">Continuar</button></div>
+      <p class="demo-note">Demo ADM: <b>admin@nightech.local</b> / <b>admin123</b></p>
+    </form>
+  </dialog>
+
+  <dialog id="cartDialog">
+    <div class="modal-card wide">
+      <button class="close" id="closeCart">×</button>
+      <h2>Seu pedido</h2>
+      <div id="cartItems"></div>
+      <div class="checkout-summary"><div><span>Subtotal</span><strong id="subtotalCart">R$ 0,00</strong></div><div><span>Desconto</span><strong id="discountCart">R$ 0,00</strong></div><div><span>Frete</span><strong id="shippingCart">A combinar</strong></div><div class="grand"><span>Total</span><strong id="totalCart">R$ 0,00</strong></div></div>
+      <label>Vendedor/consultor<select id="sellerSelect"></select></label>
+      <label>Observações<textarea id="orderNotes" rows="3" placeholder="Informações adicionais do pedido..."></textarea></label>
+      <button id="generateOrder" class="primary full">Gerar pedido em PDF</button>
+      <p class="muted tiny">Neste protótipo, o PDF é baixado neste dispositivo. O envio automático por e-mail será ativado na etapa com backend.</p>
+    </div>
+  </dialog>
+
+  <dialog id="historyDialog"><div class="modal-card wide"><button class="close" id="closeHistory">×</button><h2>Histórico de pedidos</h2><div id="historyList"></div></div></dialog>
+
+  <dialog id="adminDialog">
+    <div class="modal-card admin-modal"><button class="close" id="closeAdmin">×</button><h2>Painel administrativo</h2><div class="tabs"><button class="tab active" data-tab="products">Produtos</button><button class="tab" data-tab="sellers">Vendedores</button><button class="tab" data-tab="promo">Promoções</button></div>
+      <section id="tab-products" class="tab-panel active"><form id="productForm" class="admin-form product-admin-form"><input id="pCode" placeholder="Part number" required><input id="pName" placeholder="Descrição" required><input id="pPrice" type="number" min="0" step="0.01" placeholder="Preço" required><input id="pStock" type="number" min="0" placeholder="Estoque" required><input id="pIncoming" type="number" min="0" placeholder="Previsão qtd."><input id="pImageUrl" type="url" placeholder="URL da imagem (opcional)"><label class="file-field">Foto do produto<input id="pImageFile" type="file" accept="image/*"></label><button class="primary">Adicionar produto</button></form><p class="muted tiny">A foto enviada fica salva neste protótipo. Na versão online, as imagens serão armazenadas no servidor/CDN para suportar milhares de produtos.</p><div id="adminProducts" class="admin-list"></div></section>
+      <section id="tab-sellers" class="tab-panel"><form id="sellerForm" class="admin-form"><input id="sName" placeholder="Nome" required><input id="sEmail" type="email" placeholder="E-mail" required><input id="sPhone" placeholder="Telefone"><button class="primary">Cadastrar vendedor</button></form><div id="adminSellers" class="admin-list"></div></section>
+      <section id="tab-promo" class="tab-panel"><form id="promoForm" class="admin-form"><input id="promoPct" type="number" min="0" max="100" step="0.1" placeholder="Desconto geral %"><label class="check"><input id="freeShipping" type="checkbox"> Frete grátis</label><button class="primary">Salvar promoção</button></form></section>
+    </div>
+  </dialog>
+
+  <footer><strong>NIGHTECH</strong><span>Rua Piramboia, 1082 - Jardim Stella, Santo André - SP • (11) 93060-9734 • comercial@nightech.com.br</span></footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
