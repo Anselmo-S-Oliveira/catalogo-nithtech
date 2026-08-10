@@ -16,6 +16,10 @@
       <button id="historyBtn" class="ghost hidden">Histórico</button>
       <button id="adminBtn" class="ghost hidden">Admin</button>
       <button id="authBtn" class="ghost">Entrar</button>
+      <div class="header-order-summary" aria-label="Resumo do pedido">
+        <small>Valor do pedido</small>
+        <strong id="headerOrderTotal">R$ 0,00</strong>
+      </div>
       <button id="cartBtn" class="cart-btn">Pedido <span id="cartCount">0</span></button>
     </div>
   </header>
@@ -62,8 +66,8 @@
     </form>
   </dialog>
 
-  <dialog id="cartDialog">
-    <div class="modal-card wide">
+  <dialog id="cartDialog" class="cart-dialog">
+    <div class="modal-card cart-modal">
       <button class="close" id="closeCart">×</button>
       <h2>Seu pedido</h2>
       <div id="cartItems"></div>
