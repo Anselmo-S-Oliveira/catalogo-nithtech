@@ -59,3 +59,115 @@ dialog#cartDialog input,dialog#cartDialog select,dialog#cartDialog textarea{min-
   dialog#cartDialog .cart-row>strong{grid-column:1/2;text-align:left!important;margin-top:4px}
   dialog#cartDialog .cart-row>button{grid-column:2/3;grid-row:1/3}
 }
+
+/* ===== FIX V4: dialogs Admin + Histórico ===== */
+#adminDialog,
+#historyDialog{
+  width:min(96vw,1180px)!important;
+  max-width:1180px!important;
+  max-height:92vh!important;
+  overflow:hidden!important;
+  padding:0!important;
+}
+
+#historyDialog{
+  width:min(94vw,980px)!important;
+  max-width:980px!important;
+}
+
+#adminDialog .admin-modal,
+#historyDialog .modal-card.wide{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  max-height:92vh!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  padding:30px 34px!important;
+}
+
+#adminDialog h2,
+#historyDialog h2{
+  margin:0 46px 18px 0;
+  font-size:clamp(24px,3vw,32px);
+}
+
+#adminDialog .tabs{
+  flex-wrap:wrap;
+}
+
+#adminDialog .admin-form{
+  width:100%;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+#adminDialog .admin-form > *,
+#adminDialog .tab-panel,
+#adminDialog .admin-list,
+#historyDialog #historyList,
+#historyDialog .history-card{
+  min-width:0!important;
+  max-width:100%!important;
+}
+
+#adminDialog input,
+#adminDialog select,
+#adminDialog textarea,
+#historyDialog input,
+#historyDialog select,
+#historyDialog textarea{
+  min-width:0!important;
+  max-width:100%!important;
+}
+
+#adminDialog .admin-list,
+#historyDialog #historyList{
+  overflow-x:hidden!important;
+}
+
+#adminDialog .admin-line{
+  grid-template-columns:minmax(0,1fr) auto!important;
+  overflow-wrap:anywhere;
+}
+
+#historyDialog .history-card{
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+@media(max-width:760px){
+  #adminDialog,
+  #historyDialog{
+    width:96vw!important;
+    max-width:96vw!important;
+    max-height:94vh!important;
+  }
+
+  #adminDialog .admin-modal,
+  #historyDialog .modal-card.wide{
+    padding:24px 18px!important;
+    max-height:94vh!important;
+  }
+
+  #adminDialog .admin-form{
+    grid-template-columns:1fr 1fr!important;
+  }
+
+  #adminDialog .admin-form button{
+    grid-column:1/-1;
+  }
+}
+
+@media(max-width:520px){
+  #adminDialog .admin-form{
+    grid-template-columns:1fr!important;
+  }
+
+  #adminDialog .admin-form button{
+    grid-column:auto;
+  }
+
+  #adminDialog .admin-line{
+    grid-template-columns:minmax(0,1fr) auto!important;
+  }
+}
