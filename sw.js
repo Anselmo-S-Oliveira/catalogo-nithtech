@@ -1,5 +1,5 @@
-const CACHE='nightech-catalogo-v4-20260809';
-const ASSETS=['./','./index.html','./styles.css?v=20260809-5','./app.js?v=20260809-5','./manifest.webmanifest'];
+const CACHE='nightech-catalogo-v6-xlsx-karina';
+const ASSETS=['./','./index.html','./styles.css?v=20260809-6','./app.js?v=20260809-6','./manifest.webmanifest','./assets/images/logo-nightech.png','./assets/produtos/ROB0002.jpeg','./assets/produtos/ROB0006.jpeg','./assets/produtos/ROB0011.jpeg','./assets/produtos/ROB0012.jpeg','./assets/produtos/ROB0014.png','./assets/produtos/ROB0017.jpeg','./assets/produtos/ROB0019.jpeg','./assets/produtos/ROB0021.jpeg','./assets/produtos/ROB0024.jpeg','./assets/produtos/ROB0025.jpeg','./assets/produtos/ROB0026.png','./assets/produtos/ROB0027.jpeg','./assets/produtos/ROB0028.jpeg','./assets/produtos/ROB0031.jpeg','./assets/produtos/ROB0032.jpeg'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim()})())});
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return r}).catch(()=>caches.match(e.request)))});

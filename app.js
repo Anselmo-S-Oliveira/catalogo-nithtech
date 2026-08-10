@@ -1,35 +1,19 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
-const seedProducts=[
-{code:'ROB0002',name:'MÓDULO DE RELÉ DE 1 CANAL 5V SEM ISOLAMENTO OPTOACOPLADOR',stock:5025,incoming:0,price:3.25},
-{code:'ROB0006',name:'DIMMER 2000W 90-220V',stock:956,incoming:0,price:7.89},
-{code:'ROB0011',name:'MÓDULO RELE 4 CANAIS 5V OPTOACOPLADOR',stock:570,incoming:300,price:11.89},
-{code:'ROB0012',name:'STEPPER MOTOR DRIVER PARA IMPRESSORA 3D DRV8825',stock:80,incoming:0,price:7.89,image:'https://static.wixstatic.com/media/85f758_bf257e22d36f4587bfec3d9e393003c3~mv2.png/v1/fill/w_700,h_700,al_c,q_95,enc_auto/85f758_bf257e22d36f4587bfec3d9e393003c3~mv2.png'},
-{code:'ROB0014',name:'TECLADO MATRICIAL MEMBRANA 4X4 16 TECLAS',stock:300,incoming:500,price:3.99},
-{code:'ROB0017',name:'TRANSMISSOR E RECEPTOR RF433 MHZ WL',stock:0,incoming:351,price:5.49},
-{code:'ROB0019',name:'MÓDULO FONTE 5V700MA (3,5W) AC-DC 220V',stock:95,incoming:0,price:9.89},
-{code:'ROB0021',name:'MÓDULO RELÉ DE 8 CANAIS 5V',stock:333,incoming:0,price:21.89},
-{code:'ROB0024',name:'ADAPTADOR USB-SERIAL TTL PL2303',stock:250,incoming:100,price:6.09},
-{code:'ROB0025',name:'ADAPTADOR USB-SERIAL TTL CONVERSOR CP2102 5 PINOS',stock:0,incoming:97,price:10.89},
-{code:'ROB0026',name:'MÓDULO ADS1115 ADC DE 16 BITS - 4 CANAIS',stock:45,incoming:0,price:12.89},
-{code:'ROB0027',name:'KIT CABO JACARÉ X10 UNIDADES',stock:2953,incoming:500,price:5.89},
-{code:'ROB0028',name:'SENSOR DE UMIDADE E TEMPERATURA AM2302 - DHT22',stock:175,incoming:0,price:7.29},
-{code:'ROB0031',name:'ANTENA WIFI 3DBI 2.4GHZ',stock:39,incoming:300,price:6.49},
-{code:'ROB0032',name:'PLACA LEONARDO R3 + CABO USB',stock:416,incoming:0,price:39.89}
-];
+const seedProducts=[{"code":"ROB0002","name":"MÓDULO DE RELÉ DE 1 CANAL 5V SEM ISOLAMENTO OPTOACOPLADOR","stock":5025,"incoming":0,"price":3.25,"image":"assets/produtos/ROB0002.jpeg"},{"code":"ROB0006","name":"DIMMER 2000W 90-220V","stock":956,"incoming":0,"price":7.89,"image":"assets/produtos/ROB0006.jpeg"},{"code":"ROB0011","name":"MÓDULO RELE 4 CANAIS 5V OPTOACOPLADOR","stock":570,"incoming":300,"price":11.89,"image":"assets/produtos/ROB0011.jpeg"},{"code":"ROB0012","name":"STEPPER MOTOR DRIVER PARA IMPRESSORA 3D DRV8825","stock":80,"incoming":0,"price":7.89,"image":"assets/produtos/ROB0012.jpeg"},{"code":"ROB0014","name":"TECLADO MATRICIAL MEMBRANA 4X4 16 TECLAS","stock":300,"incoming":500,"price":3.99,"image":"assets/produtos/ROB0014.png"},{"code":"ROB0017","name":"TRANSMISSOR E RECEPTOR RF433 MHZ WL","stock":0,"incoming":351,"price":5.49,"image":"assets/produtos/ROB0017.jpeg"},{"code":"ROB0019","name":"MÓDULO FONTE 5V700MA (3,5W) AC-DC 220V","stock":95,"incoming":0,"price":9.89,"image":"assets/produtos/ROB0019.jpeg"},{"code":"ROB0021","name":"MÓDULO RELÉ DE 8 CANAIS 5V","stock":333,"incoming":0,"price":21.89,"image":"assets/produtos/ROB0021.jpeg"},{"code":"ROB0024","name":"ADAPTADOR USB-SERIAL TTL PL2303","stock":250,"incoming":100,"price":6.09,"image":"assets/produtos/ROB0024.jpeg"},{"code":"ROB0025","name":"ADAPTADOR USB-SERIAL TTL CONVERSOR CP2102 5 PINOS","stock":0,"incoming":97,"price":10.89,"image":"assets/produtos/ROB0025.jpeg"},{"code":"ROB0026","name":"MÓDULO ADS1115 ADC de 16 bits - 4 canais","stock":45,"incoming":0,"price":12.89,"image":"assets/produtos/ROB0026.png"},{"code":"ROB0027","name":"KIT CABO JACARÉ X10 UNIDADES","stock":2953,"incoming":500,"price":5.89,"image":"assets/produtos/ROB0027.jpeg"},{"code":"ROB0028","name":"SENSOR DE UMIDADE E TEMPERATURA AM2302 - DHT22","stock":175,"incoming":0,"price":7.29,"image":"assets/produtos/ROB0028.jpeg"},{"code":"ROB0031","name":"ANTENA WIFI 3DBI 2.4Ghz","stock":39,"incoming":300,"price":6.49,"image":"assets/produtos/ROB0031.jpeg"},{"code":"ROB0032","name":"PLACA LEONARDO R3 + CABO USB","stock":416,"incoming":0,"price":39.89,"image":"assets/produtos/ROB0032.jpeg"}];
 const defaultSellers=[{id:'s1',name:'Equipe Comercial Nightech',email:'comercial@nightech.com.br',phone:'(11) 93060-9734'}];
 const db={
  get(k,d){try{return JSON.parse(localStorage.getItem('nt_'+k))??d}catch{return d}},
  set(k,v){localStorage.setItem('nt_'+k,JSON.stringify(v))}
 };
-if(!db.get('products'))db.set('products',seedProducts);
-// Migração visual v5: preserva preços/estoque locais e acrescenta imagens oficiais conhecidas.
-const officialProductImages={
-  ROB0012:'https://static.wixstatic.com/media/85f758_bf257e22d36f4587bfec3d9e393003c3~mv2.png/v1/fill/w_700,h_700,al_c,q_95,enc_auto/85f758_bf257e22d36f4587bfec3d9e393003c3~mv2.png'
-};
-let migratedProducts=db.get('products',[]),didMigrate=false;
-migratedProducts=migratedProducts.map(p=>{if(!p.image&&officialProductImages[p.code]){didMigrate=true;return {...p,image:officialProductImages[p.code]}}return p});
-if(didMigrate)db.set('products',migratedProducts);
+const CATALOG_VERSION='xlsx-karina-v1';
+if(db.get('catalog_version')!==CATALOG_VERSION){
+  db.set('products',seedProducts);
+  const validCodes=new Set(seedProducts.map(p=>p.code));
+  const oldCart=db.get('cart',{});
+  db.set('cart',Object.fromEntries(Object.entries(oldCart).filter(([code])=>validCodes.has(code))));
+  db.set('catalog_version',CATALOG_VERSION);
+}
 if(!db.get('sellers'))db.set('sellers',defaultSellers); if(!db.get('users'))db.set('users',[{id:'admin',name:'Administrador Nightech',email:'admin@nightech.local',password:'admin123',role:'admin'}]); if(!db.get('promo'))db.set('promo',{discount:0,freeShipping:false});
 let products=db.get('products',[]), cart=db.get('cart',{}), currentUser=db.get('session',null), authMode='login';
 let activeQuery='', visibleLimit=48;
