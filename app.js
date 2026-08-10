@@ -4,7 +4,7 @@ const seedProducts=[
 {code:'ROB0002',name:'MÓDULO DE RELÉ DE 1 CANAL 5V SEM ISOLAMENTO OPTOACOPLADOR',stock:5025,incoming:0,price:3.25},
 {code:'ROB0006',name:'DIMMER 2000W 90-220V',stock:956,incoming:0,price:7.89},
 {code:'ROB0011',name:'MÓDULO RELE 4 CANAIS 5V OPTOACOPLADOR',stock:570,incoming:300,price:11.89},
-{code:'ROB0012',name:'STEPPER MOTOR DRIVER PARA IMPRESSORA 3D DRV8825',stock:80,incoming:0,price:7.89},
+{code:'ROB0012',name:'STEPPER MOTOR DRIVER PARA IMPRESSORA 3D DRV8825',stock:80,incoming:0,price:7.89,image:'https://static.wixstatic.com/media/85f758_bf257e22d36f4587bfec3d9e393003c3~mv2.png/v1/fill/w_700,h_700,al_c,q_95,enc_auto/85f758_bf257e22d36f4587bfec3d9e393003c3~mv2.png'},
 {code:'ROB0014',name:'TECLADO MATRICIAL MEMBRANA 4X4 16 TECLAS',stock:300,incoming:500,price:3.99},
 {code:'ROB0017',name:'TRANSMISSOR E RECEPTOR RF433 MHZ WL',stock:0,incoming:351,price:5.49},
 {code:'ROB0019',name:'MÓDULO FONTE 5V700MA (3,5W) AC-DC 220V',stock:95,incoming:0,price:9.89},
@@ -22,7 +22,15 @@ const db={
  get(k,d){try{return JSON.parse(localStorage.getItem('nt_'+k))??d}catch{return d}},
  set(k,v){localStorage.setItem('nt_'+k,JSON.stringify(v))}
 };
-if(!db.get('products'))db.set('products',seedProducts); if(!db.get('sellers'))db.set('sellers',defaultSellers); if(!db.get('users'))db.set('users',[{id:'admin',name:'Administrador Nightech',email:'admin@nightech.local',password:'admin123',role:'admin'}]); if(!db.get('promo'))db.set('promo',{discount:0,freeShipping:false});
+if(!db.get('products'))db.set('products',seedProducts);
+// Migração visual v5: preserva preços/estoque locais e acrescenta imagens oficiais conhecidas.
+const officialProductImages={
+  ROB0012:'https://static.wixstatic.com/media/85f758_bf257e22d36f4587bfec3d9e393003c3~mv2.png/v1/fill/w_700,h_700,al_c,q_95,enc_auto/85f758_bf257e22d36f4587bfec3d9e393003c3~mv2.png'
+};
+let migratedProducts=db.get('products',[]),didMigrate=false;
+migratedProducts=migratedProducts.map(p=>{if(!p.image&&officialProductImages[p.code]){didMigrate=true;return {...p,image:officialProductImages[p.code]}}return p});
+if(didMigrate)db.set('products',migratedProducts);
+if(!db.get('sellers'))db.set('sellers',defaultSellers); if(!db.get('users'))db.set('users',[{id:'admin',name:'Administrador Nightech',email:'admin@nightech.local',password:'admin123',role:'admin'}]); if(!db.get('promo'))db.set('promo',{discount:0,freeShipping:false});
 let products=db.get('products',[]), cart=db.get('cart',{}), currentUser=db.get('session',null), authMode='login';
 let activeQuery='', visibleLimit=48;
 function placeholderImage(p){const label=encodeURIComponent((p.code||'NIGHTECH').slice(0,16));return `data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns=%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width=%22640%22%20height=%22420%22%20viewBox=%220%200%20640%20420%22%3E%3Crect%20width=%22640%22%20height=%22420%22%20fill=%22%23eef2f6%22%2F%3E%3Cpath%20d=%22M250%20158h140v104H250z%22%20fill=%22%23dbe4ee%22%2F%3E%3Ccircle%20cx=%22320%22%20cy=%22210%22%20r=%2235%22%20fill=%22%2300a8e8%22%20opacity=%22.35%22%2F%3E%3Ctext%20x=%22320%22%20y=%22325%22%20font-family=%22Arial%22%20font-size=%2228%22%20font-weight=%22700%22%20text-anchor=%22middle%22%20fill=%22%230077b6%22%3E${label}%3C%2Ftext%3E%3Ctext%20x=%22320%22%20y=%22360%22%20font-family=%22Arial%22%20font-size=%2218%22%20text-anchor=%22middle%22%20fill=%22%23667085%22%3EFoto%20em%20breve%3C%2Ftext%3E%3C%2Fsvg%3E`}
@@ -60,4 +68,4 @@ function fileToDataUrl(file){return new Promise((resolve,reject)=>{let r=new Fil
 $('#sellerForm').onsubmit=e=>{e.preventDefault();let sellers=db.get('sellers',[]);sellers.push({id:crypto.randomUUID(),name:$('#sName').value.trim(),email:$('#sEmail').value.trim(),phone:$('#sPhone').value.trim()});db.set('sellers',sellers);e.target.reset();renderAdmin()};
 $('#promoForm').onsubmit=e=>{e.preventDefault();db.set('promo',{discount:+$('#promoPct').value||0,freeShipping:$('#freeShipping').checked});alert('Promoção atualizada.');updateCartSummary()};
 $('#adminProducts').onclick=e=>{let code=e.target.dataset.delProduct;if(!code)return;if(confirm('Excluir este produto?')){products=db.get('products',[]).filter(p=>p.code!==code);db.set('products',products);renderAdmin();renderCatalog()}};$('#adminSellers').onclick=e=>{let id=e.target.dataset.delSeller;if(!id)return;if(confirm('Excluir este vendedor?')){db.set('sellers',db.get('sellers',[]).filter(s=>s.id!==id));renderAdmin()}};
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=20260809-2').catch(()=>{});syncAuthUI();renderCatalog();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=20260809-5').catch(()=>{});syncAuthUI();renderCatalog();
