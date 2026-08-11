@@ -1,0 +1,14 @@
+V9 — correção da exibição das fotos
+
+Causa corrigida:
+As fotos Base64 estavam no app.js, mas eram inseridas diretamente dentro do innerHTML.
+Agora os cards são criados primeiro e o JavaScript define img.src programaticamente.
+
+Envie/substitua no GitHub:
+- index.html
+- app.js
+- sw.js
+- styles.css (se presente no pacote)
+- manifest.webmanifest (se presente no pacote)
+
+Aguarde o GitHub Actions concluir e depois use Ctrl+F5.

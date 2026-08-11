@@ -22,7 +22,39 @@ let activeQuery='', visibleLimit=48;
 function placeholderImage(p){const label=encodeURIComponent((p.code||'NIGHTECH').slice(0,16));return `data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns=%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width=%22640%22%20height=%22420%22%20viewBox=%220%200%20640%20420%22%3E%3Crect%20width=%22640%22%20height=%22420%22%20fill=%22%23eef2f6%22%2F%3E%3Cpath%20d=%22M250%20158h140v104H250z%22%20fill=%22%23dbe4ee%22%2F%3E%3Ccircle%20cx=%22320%22%20cy=%22210%22%20r=%2235%22%20fill=%22%2300a8e8%22%20opacity=%22.35%22%2F%3E%3Ctext%20x=%22320%22%20y=%22325%22%20font-family=%22Arial%22%20font-size=%2228%22%20font-weight=%22700%22%20text-anchor=%22middle%22%20fill=%22%230077b6%22%3E${label}%3C%2Ftext%3E%3Ctext%20x=%22320%22%20y=%22360%22%20font-family=%22Arial%22%20font-size=%2218%22%20text-anchor=%22middle%22%20fill=%22%23667085%22%3EFoto%20em%20breve%3C%2Ftext%3E%3C%2Fsvg%3E`}
 function productImage(p){const embedded=embeddedProductImages[p.code]; if(embedded)return embedded; return p.image||p.imageUrl||placeholderImage(p)}
 function getFilteredProducts(){let list=[...products],q=activeQuery.toLowerCase().trim(),f=$('#stockFilter').value,s=$('#sortSelect').value;if(q)list=list.filter(p=>(`${p.code||''} ${p.name||''}`).toLowerCase().includes(q));if(f==='available')list=list.filter(p=>p.stock>0);if(f==='incoming')list=list.filter(p=>p.incoming>0);if(s==='priceAsc')list.sort((a,b)=>a.price-b.price);if(s==='priceDesc')list.sort((a,b)=>b.price-a.price);if(s==='name')list.sort((a,b)=>a.name.localeCompare(b.name));if(s==='code')list.sort((a,b)=>a.code.localeCompare(b.code));return list}
-function renderCatalog(){let list=getFilteredProducts(),shown=list.slice(0,visibleLimit);$('#catalog').innerHTML=shown.length?shown.map(p=>{let q=cart[p.code]||0;return `<article class="product-card ${q?'selected':''}" data-code="${esc(p.code)}"><div class="product-image-wrap"><img class="product-image" src="${esc(productImage(p))}" alt="${esc(p.name)}" loading="lazy" onerror="this.onerror=null;this.src='${placeholderImage(p)}'"></div><span class="code">${esc(p.code)}</span><h3>${esc(p.name)}</h3><span class="stock ${p.stock>0?'ok':''}">${p.stock>0?p.stock+' em estoque':p.incoming>0?'Sem estoque • previsão '+p.incoming:'Indisponível'}</span><div class="price">${money(p.price)}</div><div class="product-actions">${q?`<div class="qty"><button data-act="minus" aria-label="Diminuir quantidade">−</button><input value="${q}" inputmode="numeric" aria-label="Quantidade"><button data-act="plus" aria-label="Aumentar quantidade">+</button></div><button class="ghost select-btn" data-act="remove">Remover</button>`:`<button class="primary select-btn" data-act="add">Selecionar</button>`}</div></article>`}).join(''):'<div class="empty-results"><strong>Nenhum produto encontrado.</strong><span>Tente outro código, palavra ou ajuste os filtros.</span></div>';$('#productCount').textContent=list.length;$('#loadMoreBtn').classList.toggle('hidden',shown.length>=list.length);$('#loadMoreBtn').textContent=`Carregar mais produtos (${shown.length} de ${list.length})`;let status=$('#searchStatus');status.classList.toggle('hidden',!activeQuery);status.innerHTML=activeQuery?`Busca por <b>${esc(activeQuery)}</b>: ${list.length} resultado(s). <button type="button" id="inlineClearSearch">Ver todos</button>`:'';updateTotals()}
+function applyCatalogImages(){
+  $$('#catalog .product-image').forEach(img=>{
+    const code=img.dataset.code;
+    const p=products.find(x=>x.code===code);
+    if(!p)return;
+    img.onerror=()=>{img.onerror=null;img.src=placeholderImage(p)};
+    img.src=productImage(p);
+  });
+}
+function renderCatalog(){
+  let list=getFilteredProducts(),shown=list.slice(0,visibleLimit);
+  $('#catalog').innerHTML=shown.length?shown.map(p=>{
+    let q=cart[p.code]||0;
+    return `<article class="product-card ${q?'selected':''}" data-code="${esc(p.code)}">
+      <div class="product-image-wrap">
+        <img class="product-image" data-code="${esc(p.code)}" alt="${esc(p.name)}" loading="lazy">
+      </div>
+      <span class="code">${esc(p.code)}</span>
+      <h3>${esc(p.name)}</h3>
+      <span class="stock ${p.stock>0?'ok':''}">${p.stock>0?p.stock+' em estoque':p.incoming>0?'Sem estoque • previsão '+p.incoming:'Indisponível'}</span>
+      <div class="price">${money(p.price)}</div>
+      <div class="product-actions">${q?`<div class="qty"><button data-act="minus" aria-label="Diminuir quantidade">−</button><input value="${q}" inputmode="numeric" aria-label="Quantidade"><button data-act="plus" aria-label="Aumentar quantidade">+</button></div><button class="ghost select-btn" data-act="remove">Remover</button>`:`<button class="primary select-btn" data-act="add">Selecionar</button>`}</div>
+    </article>`
+  }).join(''):'<div class="empty-results"><strong>Nenhum produto encontrado.</strong><span>Tente outro código, palavra ou ajuste os filtros.</span></div>';
+  applyCatalogImages();
+  $('#productCount').textContent=list.length;
+  $('#loadMoreBtn').classList.toggle('hidden',shown.length>=list.length);
+  $('#loadMoreBtn').textContent=`Carregar mais produtos (${shown.length} de ${list.length})`;
+  let status=$('#searchStatus');
+  status.classList.toggle('hidden',!activeQuery);
+  status.innerHTML=activeQuery?`Busca por <b>${esc(activeQuery)}</b>: ${list.length} resultado(s). <button type="button" id="inlineClearSearch">Ver todos</button>`:'';
+  updateTotals();
+}
 function runSearch(){activeQuery=$('#searchInput').value.trim();visibleLimit=48;$('#clearSearchBtn').classList.toggle('hidden',!activeQuery);renderCatalog()}
 
 function updateTotals(){let lines=Object.entries(cart).map(([code,qty])=>({p:products.find(x=>x.code===code),qty})).filter(x=>x.p);let count=lines.reduce((a,x)=>a+x.qty,0),subtotal=lines.reduce((a,x)=>a+x.p.price*x.qty,0);$('#cartCount').textContent=count;$('#selectedCount').textContent=count;$('#subtotalTop').textContent=money(subtotal);let headerTotal=$('#headerOrderTotal');if(headerTotal)headerTotal.textContent=money(subtotal);db.set('cart',cart)}
@@ -48,7 +80,25 @@ function makePdf(o){
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 $('#historyBtn').onclick=()=>{let orders=db.get('orders',[]).filter(o=>currentUser?.role==='admin'||o.customer.email===currentUser?.email||o.seller?.email===currentUser?.email);$('#historyList').innerHTML=orders.length?orders.map(o=>`<div class="history-card"><b>${o.id}</b> • ${new Date(o.createdAt).toLocaleString('pt-BR')}<br><span>${o.lines.length} item(ns) • <b>${money(o.total)}</b></span></div>`).join(''):'<p class="muted">Nenhum pedido encontrado.</p>';$('#historyDialog').showModal()};$('#closeHistory').onclick=()=>$('#historyDialog').close();
 $('#adminBtn').onclick=()=>{renderAdmin();$('#adminDialog').showModal()};$('#closeAdmin').onclick=()=>$('#adminDialog').close();$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab,.tab-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#tab-'+b.dataset.tab).classList.add('active')});
-function renderAdmin(){products=db.get('products',[]);$('#adminProducts').innerHTML=products.map(p=>`<div class="admin-line product-admin-line"><img src="${esc(productImage(p))}" alt="" onerror="this.onerror=null;this.src='${placeholderImage(p)}'"><span><b>${esc(p.code)}</b> • ${esc(p.name)} • ${money(p.price)} • estoque ${p.stock}</span><button data-del-product="${esc(p.code)}">Excluir</button></div>`).join('');let sellers=db.get('sellers',[]);$('#adminSellers').innerHTML=sellers.map(s=>`<div class="admin-line"><span><b>${s.name}</b> • ${s.email}</span><button data-del-seller="${s.id}">Excluir</button></div>`).join('');let promo=db.get('promo',{discount:0,freeShipping:false});$('#promoPct').value=promo.discount||0;$('#freeShipping').checked=!!promo.freeShipping}
+function applyAdminImages(){
+  $$('#adminProducts img[data-code]').forEach(img=>{
+    const code=img.dataset.code;
+    const p=products.find(x=>x.code===code);
+    if(!p)return;
+    img.onerror=()=>{img.onerror=null;img.src=placeholderImage(p)};
+    img.src=productImage(p);
+  });
+}
+function renderAdmin(){
+  products=db.get('products',[]);
+  $('#adminProducts').innerHTML=products.map(p=>`<div class="admin-line product-admin-line"><img data-code="${esc(p.code)}" alt="${esc(p.name)}"><span><b>${esc(p.code)}</b> • ${esc(p.name)} • ${money(p.price)} • estoque ${p.stock}</span><button data-del-product="${esc(p.code)}">Excluir</button></div>`).join('');
+  applyAdminImages();
+  let sellers=db.get('sellers',[]);
+  $('#adminSellers').innerHTML=sellers.map(s=>`<div class="admin-line"><span><b>${s.name}</b> • ${s.email}</span><button data-del-seller="${s.id}">Excluir</button></div>`).join('');
+  let promo=db.get('promo',{discount:0,freeShipping:false});
+  $('#promoPct').value=promo.discount||0;
+  $('#freeShipping').checked=!!promo.freeShipping
+}
 $('#productForm').onsubmit=async e=>{e.preventDefault();products=db.get('products',[]);let code=$('#pCode').value.trim().toUpperCase();if(products.some(p=>p.code===code))return alert('Código já cadastrado.');let image=$('#pImageUrl').value.trim(),file=$('#pImageFile').files[0];if(file){if(file.size>1200000)return alert('Para este protótipo, use uma imagem de até 1,2 MB. Na versão online não haverá essa limitação local.');image=await fileToDataUrl(file)}products.push({code,name:$('#pName').value.trim(),price:+$('#pPrice').value,stock:+$('#pStock').value,incoming:+$('#pIncoming').value||0,image});db.set('products',products);e.target.reset();renderAdmin();visibleLimit=48;renderCatalog()};
 function fileToDataUrl(file){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 $('#sellerForm').onsubmit=e=>{e.preventDefault();let sellers=db.get('sellers',[]);sellers.push({id:crypto.randomUUID(),name:$('#sName').value.trim(),email:$('#sEmail').value.trim(),phone:$('#sPhone').value.trim()});db.set('sellers',sellers);e.target.reset();renderAdmin()};
