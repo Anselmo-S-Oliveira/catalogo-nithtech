@@ -1,0 +1,7 @@
+CATÁLOGO NIGHTECH - V7
+
+Esta versão embute as 15 fotos dos produtos diretamente em app.js e o logo diretamente em index.html.
+Não é necessário enviar a pasta assets ao GitHub Pages.
+
+Substitua na raiz do repositório: index.html, styles.css, app.js, manifest.webmanifest e sw.js.
+Depois faça Commit changes e aguarde o GitHub Actions concluir.
