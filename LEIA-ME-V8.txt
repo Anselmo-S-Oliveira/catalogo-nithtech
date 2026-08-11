@@ -1,0 +1,1 @@
+V8: corrige prioridade das fotos embutidas por Part Number e evita armazenar base64 pesado no localStorage.
